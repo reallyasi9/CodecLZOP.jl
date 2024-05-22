@@ -1,3 +1,3 @@
 [deps]
-CodecLZOP = "0b0bd881-ef37-467a-b79a-de90b9100b39"
+CodecLZO = "0b0bd881-ef37-467a-b79a-de90b9100b39"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"

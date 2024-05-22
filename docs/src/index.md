@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = CodecLZOP
+CurrentModule = CodecLZO
 ```
 
-# CodecLZOP
+# CodecLZO
 
-Documentation for [CodecLZOP](https://github.com/reallyasi9/CodecLZOP.jl).
+Documentation for [CodecLZO](https://github.com/reallyasi9/CodecLZO.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [CodecLZOP]
+Modules = [CodecLZO]
 ```
