@@ -17,6 +17,7 @@ const LZOP_MAX_BLOCK_SIZE = 64 * 1024 * 1024
 - `optimize::Bool = false`: If `true`, process the data twice to optimize how it is stored for faster decompression. Setting this to `true` doubles compression time with little to no improvement in decompression time, so its use is not recommended.
 """
 function compress_block(invec::AbstractVector{UInt8}, output::IO, algo::AbstractLZOAlgorithm; block_size::Integer=LZOP_DEFAULT_BLOCK_SIZE, crc32::Bool=false, filter_function::F=identity, optimize::Bool=false) where {F <: Function}
+    block_size > LZOP_MAX_BLOCK_SIZE && @warn "block size clamped at maximum LZOP block size" block_size LZOP_MAX_BLOCK_SIZE
     bytes_read = min(length(invec), block_size, LZOP_MAX_BLOCK_SIZE) % Int
 
     bytes_written = zero(Int)
@@ -134,7 +135,7 @@ function decompress_block(input::IO, output::IO, algo::AbstractLZOAlgorithm; crc
         if on_checksum_fail != :ignore
             checksum = crc32 ? _crc32(raw_data) : adler32(raw_data)
             if checksum != compressed_checksum
-                on_checksum_fail == :throw && throw(ErrorException("invalid LZOP block: compressed checksum recorded in block does not equal computed checksum with crc32=$crc32 ($compressed_checksum != $checksum)"))
+                on_checksum_fail == :throw && throw(ErrorException("invalid LZOP block: compressed checksum recorded in block does not equal computed checksum with crc32=$crc32 ($(@sprintf("%08x", compressed_checksum)) != $(@sprintf("%08x", checksum)))"))
                 if on_checksum_fail == :warn
                     @warn "invalid LZOP block: compressed checksum recorded in block does not equal computed checksum" crc32 recorded_checksum = compressed_checksum computed_checksum = checksum
                 end
@@ -155,7 +156,7 @@ function decompress_block(input::IO, output::IO, algo::AbstractLZOAlgorithm; crc
     if on_checksum_fail != :ignore
         checksum = crc32 ? _crc32(uncompressed_data) : adler32(uncompressed_data)
         if checksum != uncompressed_checksum
-            on_checksum_fail == :throw && throw(ErrorException("invalid LZOP block: uncompressed checksum recorded in block does not equal computed checksum with crc32=$crc32 ($uncompressed_checksum != $checksum)"))
+            on_checksum_fail == :throw && throw(ErrorException("invalid LZOP block: uncompressed checksum recorded in block does not equal computed checksum with crc32=$crc32 ($(@sprintf("%08x", uncompressed_checksum)) != $(@sprintf("%08x", checksum)))"))
             if on_checksum_fail == :warn
                 @warn "invalid LZOP block: uncompressed checksum recorded in block does not equal computed checksum" crc32 recorded_checksum = uncompressed_checksum computed_checksum = checksum
             end
