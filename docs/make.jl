@@ -1,14 +1,14 @@
-using CodecLZO
+using CodecLZOP
 using Documenter
 
-DocMeta.setdocmeta!(CodecLZO, :DocTestSetup, :(using CodecLZO); recursive=true)
+DocMeta.setdocmeta!(CodecLZOP, :DocTestSetup, :(using CodecLZOP); recursive=true)
 
 makedocs(;
-    modules=[CodecLZO],
+    modules=[CodecLZOP],
     authors="Phil Killewald <reallyasi9@users.noreply.github.com> and contributors",
-    sitename="CodecLZO.jl",
+    sitename="CodecLZOP.jl",
     format=Documenter.HTML(;
-        canonical="https://reallyasi9.github.io/CodecLZO.jl",
+        canonical="https://reallyasi9.github.io/CodecLZOP.jl",
         edit_link="development",
         assets=String[],
     ),
@@ -18,6 +18,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/reallyasi9/CodecLZO.jl",
+    repo="github.com/reallyasi9/CodecLZOP.jl",
     devbranch="development",
 )

@@ -1,6 +1,6 @@
-using CodecLZO
+using CodecLZOP
 using Test
 
-@testset "CodecLZO.jl" begin
+@testset "CodecLZOP.jl" begin
     # Write your tests here.
 end

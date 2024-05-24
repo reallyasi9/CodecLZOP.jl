@@ -1,4 +1,4 @@
-module CodecLZO
+module CodecLZOP
 
 using CRC32
 using LibLZO

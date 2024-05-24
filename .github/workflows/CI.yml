@@ -73,6 +73,6 @@ jobs:
         shell: julia --project=docs --color=yes {0}
         run: |
           using Documenter: DocMeta, doctest
-          using CodecLZO
-          DocMeta.setdocmeta!(CodecLZO, :DocTestSetup, :(using CodecLZO); recursive=true)
-          doctest(CodecLZO)
+          using CodecLZOP
+          DocMeta.setdocmeta!(CodecLZOP, :DocTestSetup, :(using CodecLZOP); recursive=true)
+          doctest(CodecLZOP)
