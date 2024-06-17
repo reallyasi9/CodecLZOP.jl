@@ -1,0 +1,7 @@
+[CanterburyCorpus]
+git-tree-sha1 = "c52938c1f8265fb67b598f112e4c70ef9d0bf062"
+lazy = true
+
+    [[CanterburyCorpus.download]]
+    sha256 = "f140e8a5b73d3f53198555a63bfb827889394a42f20825df33c810c3d5e3f8fb"
+    url = "http://corpus.canterbury.ac.nz/resources/cantrbry.tar.gz"
