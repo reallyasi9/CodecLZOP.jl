@@ -39,7 +39,7 @@ end
 
 LZOPDecompressorStream(io::IO, s::AbstractString; kwargs...) = LZOPDecompressorStream(io, Symbol(s); kwargs...)
 
-function TranscodingStreams.minoutsize(::LZOPDecompressor, input::TranscodingStreams.Memory)::Int64
+function TranscodingStreams.minoutsize(::LZOPDecompressor, input::TranscodingStreams.Memory)::Int
     # Because the codec decompresses by one block at a time, we can read off the size of the uncompressed data from the input directly (UInt32 in be order)
     length(input) < 4 && return 0
     return Int(input[1]) << 24 + Int(input[2]) << 16 + Int(input[3]) << 8 + Int(input[4])

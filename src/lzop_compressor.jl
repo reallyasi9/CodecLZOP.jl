@@ -47,7 +47,7 @@ end
 
 LZOPCompressorStream(io::IO, s::AbstractString; kwargs...) = LZOPCompressorStream(io, Symbol(s); kwargs...)
 
-function TranscodingStreams.minoutsize(codec::LZOPCompressor, input::TranscodingStreams.Memory)::Int64
+function TranscodingStreams.minoutsize(codec::LZOPCompressor, input::TranscodingStreams.Memory)::Int
     # Empty data compresses to a single, uncompressed length of UInt32(0)
     length(input) == 0 && return 4
     # Uncompressed length, compressed length, uncompressed checksum, and compressed checksum: each a UInt32.
