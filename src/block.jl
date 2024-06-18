@@ -92,7 +92,7 @@ compress_block(input::AbstractString, output::IO, algo::AbstractLZOAlgorithm; kw
 - `output::IO`: Output IO object to write the decompressed block.
 
 # Keyword arguments
-- 'crc32::Bool = false`: If `true`, assume the checksum written to the block for both uncompressed and compressed data is a CRC-32 checksum. If `false`, assume Adler32 checksums instead.
+- `crc32::Bool = false`: If `true`, assume the checksum written to the block for both uncompressed and compressed data is a CRC-32 checksum. If `false`, assume Adler32 checksums instead.
 - `filter_function::Function = identity`: Untransform the output data using the specified filter function. The filter function must take a single `AbstractVector{UInt8}` argument and modify it in place.
 - `on_checksum_fail::Symbol = :throw`: Choose how the function responds to invalud checksums. If `:throw`, an `ErrorException` will be thrown. If `:warn`, a warning will be printed. If `:ignore`, the checksum values will be completely ignored.
 """

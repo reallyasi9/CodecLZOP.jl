@@ -1,4 +1,26 @@
-# TODO: Fix kwargs
+
+"""
+    LZOPCompressor(algo; [block_size=LZOP_DEFAULT_BLOCK_SIZE, crc32=true, filter=identity, optimize=false]) <: TranscodingStreams.Codec
+
+    An implemention of the streaming compression algorithm used by LZOP.
+
+LZO ([Lempel-Ziv-Oberhumer](https://www.oberhumer.com/opensource/lzo/)) is a variant of the [LZ77 compression algorithm](https://doi.org/10.1109/TIT.1977.1055714). The original implementation of LZO (as implemented in liblzo2) can only compress and decompress entire blocks of in-memory data at once.
+
+LZOP is a command-line utility that adds streaming compression and decompression capabilities to LZO by:
+1. Splitting input data into blocks of fixed size; and
+2. Adding header information to each block that contains compressed size, uncompressed size, and checksum information.
+
+This codec implements streaming compression of data using this algorithm. Note that LZOP _archives_ (the output of the LZOP command-line utility) are concatenated collections of files compressed using the LZOP algorithm and contain additional header information for each file: the output of this code will not be directly compatable with the LZOP command line program without adding these file headers.
+
+# Arguments
+- `algo`: an `LibLZO.AbstractLZOAlgorithm`, `Symbol`, or `AbstractString` describing the LZO algorithm to use when compressing the data.
+
+# Keyword Arguments
+- `block_size::Integer = LZOP_DEFAULT_BLOCK_SIZE`: the maximum size of each block into which the input data will be split before compressing with LZO. Cannot be greater than `64 * 2^20` (64 MB).
+- `crc32::Bool = true`: whether to write a CRC32 checksum to the compressed data header (default) or an Adler32 checksum (`crc32=false`).
+- `filter::Function = identity`: a function applied to the compressed data as it is streamed. The function must take a single `AbstractVector{UInt8}` argument and modify it in place without changing its size.
+- `optimize::Bool = false`: whether to run the LZO optimization function on compressed data before writing it to the stream. Optimization doubles the compression time and rarely results in improved compression ratios, so it is disabled by default.
+"""
 struct LZOPCompressor{A<:AbstractLZOAlgorithm,F<:Function} <: TranscodingStreams.Codec
     algo::A
 
