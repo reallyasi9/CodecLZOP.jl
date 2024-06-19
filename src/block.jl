@@ -4,7 +4,7 @@ const LZOP_MAX_BLOCK_SIZE = 64 * 1024 * 1024
 """
     compress_block(input, output, algo; [kwargs...])::Tuple{Int,Int}
 
-    Compress a block of data from `input` to `output` using LZO algorithm `algo`, returning the number of bytes read from `input` and written to `output`.
+Compress a block of data from `input` to `output` using LZO algorithm `algo`, returning the number of bytes read from `input` and written to `output`.
 
 # Arguments
 - `input`: An `AbstractVector{UInt8}` or `IO` object containing the block of data to compress.
@@ -85,7 +85,7 @@ compress_block(input::AbstractString, output::IO, algo::AbstractLZOAlgorithm; kw
 """
     decompress_block(input, output, algo; [kwargs...])::Tuple{Int,Int}
 
-    Decompress a block of data from `input` to `output` using LZO algorithm `algo`, returning the number of bytes read from `input` and written to `output`.
+Decompress a block of data from `input` to `output` using LZO algorithm `algo`, returning the number of bytes read from `input` and written to `output`.
 
 # Arguments
 - `input`: An `AbstractVector{UInt8}` or `IO` object containing the block of LZO-compressed data to decompress.

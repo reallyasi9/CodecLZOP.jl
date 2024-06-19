@@ -2,7 +2,7 @@
 """
     LZOPDecompressor(algo; [crc32=true, filter=identity, on_checksum_fail=:throw]) <: TranscodingStreams.Codec
 
-    An implemention of the streaming decompression algorithm used by LZOP.
+An implemention of the streaming decompression algorithm used by LZOP.
 
 LZO ([Lempel-Ziv-Oberhumer](https://www.oberhumer.com/opensource/lzo/)) is a variant of the [LZ77 compression algorithm](https://doi.org/10.1109/TIT.1977.1055714). The original implementation of LZO (as implemented in liblzo2) can only compress and decompress entire blocks of in-memory data at once.
 
