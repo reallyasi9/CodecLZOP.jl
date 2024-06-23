@@ -8,123 +8,141 @@ using TestItemRunner
     @test typeof(c) == LZOPCompressor{LZO1X_1,typeof(identity)}
     @test typeof(c.algo) == LZO1X_1
     @test c.block_size == CodecLZOP.LZOP_DEFAULT_BLOCK_SIZE
-    @test c.crc32 == true
+    @test c.uncompressed_checksum == :adler32
+    @test isnothing(c.compressed_checksum)
     @test c.filter_fun == identity
     @test c.optimize == false
 
     # kwarg constructor
     algo = LZO1X_1_11()
     block_size = 1
-    crc32 = false
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
     filter_fun = Base.:-
     optimize = true
-    c = LZOPCompressor(algo; block_size=block_size, crc32=crc32, filter=filter_fun, optimize=optimize)
+    c = LZOPCompressor(algo; block_size=block_size, uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, optimize=optimize)
     @test typeof(c) == LZOPCompressor{typeof(algo),typeof(Base.:-)}
     @test typeof(c.algo) == typeof(algo)
     @test c.block_size == block_size
-    @test c.crc32 == crc32
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
     @test c.filter_fun == Base.:-
     @test c.optimize == optimize
 
     # algo type constructor
     algo = LZO1X_1_11
     block_size = 1
-    crc32 = false
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
     filter_fun = Base.:-
     optimize = true
-    c = LZOPCompressor(algo; block_size=block_size, crc32=crc32, filter=filter_fun, optimize=optimize)
+    c = LZOPCompressor(algo; block_size=block_size, uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, optimize=optimize)
     @test typeof(c) == LZOPCompressor{algo,typeof(Base.:-)}
     @test typeof(c.algo) == algo
     @test c.block_size == block_size
-    @test c.crc32 == crc32
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
     @test c.filter_fun == Base.:-
     @test c.optimize == optimize
 
     # algo symbol constructor
     algo = :LZO1X_1_11
     block_size = 1
-    crc32 = false
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
     filter_fun = Base.:-
     optimize = true
-    c = LZOPCompressor(algo; block_size=block_size, crc32=crc32, filter=filter_fun, optimize=optimize)
+    c = LZOPCompressor(algo; block_size=block_size, uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, optimize=optimize)
     @test typeof(c) == LZOPCompressor{LZO1X_1_11,typeof(Base.:-)}
     @test typeof(c.algo) == LZO1X_1_11
     @test c.block_size == block_size
-    @test c.crc32 == crc32
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
     @test c.filter_fun == Base.:-
     @test c.optimize == optimize
 
     # algo string constructor
     algo = "LZO1X_1_11"
     block_size = 1
-    crc32 = false
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
     filter_fun = Base.:-
     optimize = true
-    c = LZOPCompressor(algo; block_size=block_size, crc32=crc32, filter=filter_fun, optimize=optimize)
+    c = LZOPCompressor(algo; block_size=block_size, uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, optimize=optimize)
     @test typeof(c) == LZOPCompressor{LZO1X_1_11,typeof(Base.:-)}
     @test typeof(c.algo) == LZO1X_1_11
     @test c.block_size == block_size
-    @test c.crc32 == crc32
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
     @test c.filter_fun == Base.:-
     @test c.optimize == optimize
 end
 
 @testitem "LZOPDecompressor constructors" begin
-        # default constructor
-        c = LZOPDecompressor()
-        @test typeof(c) == LZOPDecompressor{LZO1X_1,typeof(identity)}
-        @test typeof(c.algo) == LZO1X_1
-        @test c.crc32 == true
-        @test c.filter_fun == identity
-        @test c.on_checksum_fail == :throw
-    
-        # kwarg constructor
-        algo = LZO1X_1_11()
-        crc32 = false
-        filter_fun = Base.:-
-        on_checksum_fail = :ignore
-        c = LZOPDecompressor(algo; crc32=crc32, filter=filter_fun, on_checksum_fail=on_checksum_fail)
-        @test typeof(c) == LZOPDecompressor{typeof(algo),typeof(Base.:-)}
-        @test typeof(c.algo) == typeof(algo)
-        @test c.crc32 == crc32
-        @test c.filter_fun == Base.:-
-        @test c.on_checksum_fail == on_checksum_fail
-    
-        # algo type constructor
-        algo = LZO1X_1_11
-        crc32 = false
-        filter_fun = Base.:-
-        on_checksum_fail = :ignore
-        c = LZOPDecompressor(algo; crc32=crc32, filter=filter_fun, on_checksum_fail=on_checksum_fail)
-        @test typeof(c) == LZOPDecompressor{algo,typeof(Base.:-)}
-        @test typeof(c.algo) == algo
-        @test c.crc32 == crc32
-        @test c.filter_fun == Base.:-
-        @test c.on_checksum_fail == on_checksum_fail
-    
-        # algo symbol constructor
-        algo = :LZO1X_1_11
-        crc32 = false
-        filter_fun = Base.:-
-        on_checksum_fail = :ignore
-        c = LZOPDecompressor(algo; crc32=crc32, filter=filter_fun, on_checksum_fail=on_checksum_fail)
-        @test typeof(c) == LZOPDecompressor{LZO1X_1_11,typeof(Base.:-)}
-        @test typeof(c.algo) == LZO1X_1_11
-        @test c.crc32 == crc32
-        @test c.filter_fun == Base.:-
-        @test c.on_checksum_fail == on_checksum_fail
-    
-        # algo string constructor
-        algo = "LZO1X_1_11"
-        crc32 = false
-        filter_fun = Base.:-
-        on_checksum_fail = :ignore
-        c = LZOPDecompressor(algo; crc32=crc32, filter=filter_fun, on_checksum_fail=on_checksum_fail)
-        @test typeof(c) == LZOPDecompressor{LZO1X_1_11,typeof(Base.:-)}
-        @test typeof(c.algo) == LZO1X_1_11
-        @test c.crc32 == crc32
-        @test c.filter_fun == Base.:-
-        @test c.on_checksum_fail == on_checksum_fail
+    # default constructor
+    c = LZOPDecompressor()
+    @test typeof(c) == LZOPDecompressor{LZO1X_1,typeof(identity)}
+    @test typeof(c.algo) == LZO1X_1
+    @test c.uncompressed_checksum == :adler32
+    @test isnothing(c.compressed_checksum)
+    @test c.filter_fun == identity
+    @test c.on_checksum_fail == :throw
+
+    # kwarg constructor
+    algo = LZO1X_1_11()
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
+    filter_fun = Base.:-
+    on_checksum_fail = :ignore
+    c = LZOPDecompressor(algo; uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, on_checksum_fail=on_checksum_fail)
+    @test typeof(c) == LZOPDecompressor{typeof(algo),typeof(Base.:-)}
+    @test typeof(c.algo) == typeof(algo)
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
+    @test c.filter_fun == Base.:-
+    @test c.on_checksum_fail == on_checksum_fail
+
+    # algo type constructor
+    algo = LZO1X_1_11
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
+    filter_fun = Base.:-
+    on_checksum_fail = :ignore
+    c = LZOPDecompressor(algo; uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, on_checksum_fail=on_checksum_fail)
+    @test typeof(c) == LZOPDecompressor{algo,typeof(Base.:-)}
+    @test typeof(c.algo) == algo
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
+    @test c.filter_fun == Base.:-
+    @test c.on_checksum_fail == on_checksum_fail
+
+    # algo symbol constructor
+    algo = :LZO1X_1_11
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
+    filter_fun = Base.:-
+    on_checksum_fail = :ignore
+    c = LZOPDecompressor(algo; uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, on_checksum_fail=on_checksum_fail)
+    @test typeof(c) == LZOPDecompressor{LZO1X_1_11,typeof(Base.:-)}
+    @test typeof(c.algo) == LZO1X_1_11
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
+    @test c.filter_fun == Base.:-
+    @test c.on_checksum_fail == on_checksum_fail
+
+    # algo string constructor
+    algo = "LZO1X_1_11"
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
+    filter_fun = Base.:-
+    on_checksum_fail = :ignore
+    c = LZOPDecompressor(algo; uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, on_checksum_fail=on_checksum_fail)
+    @test typeof(c) == LZOPDecompressor{LZO1X_1_11,typeof(Base.:-)}
+    @test typeof(c.algo) == LZO1X_1_11
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
+    @test c.filter_fun == Base.:-
+    @test c.on_checksum_fail == on_checksum_fail
 end
 
 @testitem "LZOPCompressorStream constructors" begin
@@ -136,25 +154,28 @@ end
     @test typeof(c) == LZOPCompressor{LZO1X_1,typeof(identity)}
     @test typeof(c.algo) == LZO1X_1
     @test c.block_size == CodecLZOP.LZOP_DEFAULT_BLOCK_SIZE
-    @test c.crc32 == true
+    @test c.uncompressed_checksum == :adler32
+    @test isnothing(c.compressed_checksum)
     @test c.filter_fun == identity
     @test c.optimize == false
 
     # kwarg splitting constructor
     algo = LZO1X_1_11()
     block_size = 1
-    crc32 = false
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
     filter_fun = Base.:-
     optimize = true
     bufsize = 2_000
     stop_on_end = true
-    s = LZOPCompressorStream(io, algo; block_size=block_size, crc32=crc32, filter=filter_fun, optimize=optimize, bufsize=bufsize, stop_on_end=stop_on_end)
+    s = LZOPCompressorStream(io, algo; block_size=block_size, uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, optimize=optimize, bufsize=bufsize, stop_on_end=stop_on_end)
     c = s.codec
     @test s.stream == io
     @test typeof(c) == LZOPCompressor{typeof(algo),typeof(Base.:-)}
     @test typeof(c.algo) == typeof(algo)
     @test c.block_size == block_size
-    @test c.crc32 == crc32
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
     @test c.filter_fun == Base.:-
     @test c.optimize == optimize
     @test length(s.buffer1) == length(s.buffer2) == bufsize
@@ -162,35 +183,37 @@ end
 end
 
 @testitem "LZOPDecompressorStream constructors" begin
-        # default constructor
-        io = IOBuffer()
-        s = LZOPDecompressorStream(io)
-        c = s.codec
-        @test s.stream == io
-        @test typeof(c) == LZOPDecompressor{LZO1X_1,typeof(identity)}
-        @test typeof(c.algo) == LZO1X_1
-        @test c.crc32 == true
-        @test c.filter_fun == identity
-        @test c.on_checksum_fail == :throw
-    
-        # kwarg splitting constructor
-        algo = LZO1X_1_11()
-        block_size = 1
-        crc32 = false
-        filter_fun = Base.:-
-        bufsize = 2_000
-        on_checksum_fail = :ignore
-        stop_on_end = true
-        s = LZOPDecompressorStream(io, algo; crc32=crc32, filter=filter_fun, on_checksum_fail=on_checksum_fail, bufsize=bufsize, stop_on_end=stop_on_end)
-        c = s.codec
-        @test s.stream == io
-        @test typeof(c) == LZOPDecompressor{typeof(algo),typeof(Base.:-)}
-        @test typeof(c.algo) == typeof(algo)
-        @test c.crc32 == crc32
-        @test c.filter_fun == Base.:-
-        @test c.on_checksum_fail == on_checksum_fail
-        @test length(s.buffer1) == length(s.buffer2) == bufsize
-        @test s.state.stop_on_end == stop_on_end
+    # default constructor
+    io = IOBuffer()
+    s = LZOPDecompressorStream(io)
+    c = s.codec
+    @test s.stream == io
+    @test typeof(c) == LZOPDecompressor{LZO1X_1,typeof(identity)}
+    @test typeof(c.algo) == LZO1X_1
+    @test c.crc32 == true
+    @test c.filter_fun == identity
+    @test c.on_checksum_fail == :throw
+
+    # kwarg splitting constructor
+    algo = LZO1X_1_11()
+    block_size = 1
+    uncompressed_checksum = nothing
+    compressed_checksum = :crc32
+    filter_fun = Base.:-
+    bufsize = 2_000
+    on_checksum_fail = :ignore
+    stop_on_end = true
+    s = LZOPDecompressorStream(io, algo; uncompressed_checksum=uncompressed_checksum, compressed_checksum=compressed_checksum, filter=filter_fun, on_checksum_fail=on_checksum_fail, bufsize=bufsize, stop_on_end=stop_on_end)
+    c = s.codec
+    @test s.stream == io
+    @test typeof(c) == LZOPDecompressor{typeof(algo),typeof(Base.:-)}
+    @test typeof(c.algo) == typeof(algo)
+    @test c.uncompressed_checksum == uncompressed_checksum
+    @test c.compressed_checksum == compressed_checksum
+    @test c.filter_fun == Base.:-
+    @test c.on_checksum_fail == on_checksum_fail
+    @test length(s.buffer1) == length(s.buffer2) == bufsize
+    @test s.state.stop_on_end == stop_on_end
 end
 
 @testitem "transcode round-trip random" begin
@@ -254,7 +277,8 @@ end
 end
 
 @testitem "transcode round-trip pathological" begin
-    # unclear what, if any, pathological data would cause errors
+    # test reading bad checksum: ignore, throw, and warn
+    # test both checksums, only compressed checksum (with errors, as above)
 end
 
 @run_package_tests verbose=true
