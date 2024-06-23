@@ -97,8 +97,8 @@ function TranscodingStreams.minoutsize(codec::LZOPCompressor, input::Transcoding
 end
 
 function TranscodingStreams.process(codec::LZOPCompressor, input::TranscodingStreams.Memory, output::TranscodingStreams.Memory, error::TranscodingStreams.Error)
-    r = 0
-    w = 0
+    r = zero(Int)
+    w = zero(Int)
 
     # end of sequence
     if length(input) == 0
@@ -107,7 +107,8 @@ function TranscodingStreams.process(codec::LZOPCompressor, input::TranscodingStr
         output[2] = 0x00
         output[3] = 0x00
         output[4] = 0x00
-        return (0, 4, :end)
+        w += 4
+        return (r, w, :end)
     end
 
     # output is guaranteed to be long enough to hold compressed input

@@ -190,7 +190,8 @@ end
     @test s.stream == io
     @test typeof(c) == LZOPDecompressor{LZO1X_1,typeof(identity)}
     @test typeof(c.algo) == LZO1X_1
-    @test c.crc32 == true
+    @test c.uncompressed_checksum == :adler32
+    @test isnothing(c.compressed_checksum)
     @test c.filter_fun == identity
     @test c.on_checksum_fail == :throw
 
@@ -216,6 +217,20 @@ end
     @test s.state.stop_on_end == stop_on_end
 end
 
+@testitem "stream round-trip random" begin
+    using Random
+    
+    rng = Random.MersenneTwister(42)
+    data = rand(rng, UInt8, 1_000_000)
+    
+    data_io = IOBuffer(copy(data))
+    cstream = LZOPCompressorStream(data_io)
+    dcstream = LZOPDecompressorStream(cstream)
+    decompressed = similar(data)
+    readbytes!(dcstream, decompressed)
+    @test decompressed == data
+end
+
 @testitem "transcode round-trip random" begin
     using Random
     using TranscodingStreams
@@ -227,13 +242,6 @@ end
     @test compressed != data
     @test length(compressed) >= length(data) # random data does not compress
     decompressed = transcode(LZOPDecompressor, compressed)
-    @test decompressed == data
-
-    data_io = IOBuffer(copy(data))
-    cstream = LZOPCompressorStream(data_io)
-    dcstream = LZOPDecompressorStream(cstream)
-    decompressed = similar(data)
-    readbytes!(dcstream, decompressed)
     @test decompressed == data
 end
 
