@@ -2,7 +2,7 @@
 """
     LZOPCompressor(algo; [block_size=LZOP_DEFAULT_BLOCK_SIZE, uncompressed_checksum=:adler32, compressed_checksum=nothing, filter=identity, optimize=false]) <: TranscodingStreams.Codec
 
-    An implemention of the streaming compression algorithm used by LZOP.
+An implemention of the streaming compression algorithm used by LZOP.
 
 LZO ([Lempel-Ziv-Oberhumer](https://www.oberhumer.com/opensource/lzo/)) is a variant of the [LZ77 compression algorithm](https://doi.org/10.1109/TIT.1977.1055714). The original implementation of LZO (as implemented in liblzo2) can only compress and decompress entire blocks of in-memory data at once.
 
@@ -90,9 +90,8 @@ function TranscodingStreams.minoutsize(codec::LZOPCompressor, input::Transcoding
     # Uncompressed checksum, compressed checksum: each a UInt32.
     # You only get the compressed checksum if compressed length < uncompressed length.
     # And compressed length <= uncompressed length, always
-    # Thus the maximum number of bytes occurs when each input block compresses by exactly one byte, thereby increasing the total size by 15 bytes per block.
     d = length(input) ÷ codec.block_size
-    extra = 8 + (!isnothing(codec.uncompressed_checksum) ? 4 : 0) + (!isnothing(codec.compressed_checksum) ? 4 : 0) - 1
+    extra = 8 + (!isnothing(codec.uncompressed_checksum) ? 4 : 0) + (!isnothing(codec.compressed_checksum) ? 4 : 0)
     return length(input) + (d + 1) * extra
 end
 

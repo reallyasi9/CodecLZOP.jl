@@ -284,9 +284,59 @@ end
     end
 end
 
-@testitem "transcode round-trip pathological" begin
-    # test reading bad checksum: ignore, throw, and warn
-    # test both checksums, only compressed checksum (with errors, as above)
+@testitem "mismatched compression algorithms" begin
+    using LazyArtifacts
+    using LibLZO
+    using TranscodingStreams
+
+    let 
+        cc_path = artifact"CanterburyCorpus"
+        fn = first(readdir(cc_path; sort=true, join=true))
+        truth = read(fn)
+
+        compressed = transcode(LZOPCompressor(LZO1X_1), truth)
+        @test_throws Exception transcode(LZOPDecompressor(LZO1Z_999), compressed)
+    end
+end
+
+@testitem "bad checksum options" begin
+    using TranscodingStreams
+
+    test_data = Vector{UInt8}("Hello, Julia!"^10)
+    
+    compressed = transcode(LZOPCompressor(; uncompressed_checksum=:adler32, compressed_checksum=:crc32), test_data)
+
+    # note: writing a checksum and skipping the check for it might result in a hard crash, so DO NOT DO THAT!
+    @test_throws Exception transcode(LZOPDecompressor(; uncompressed_checksum=:crc32, compressed_checksum=:crc32), compressed)
+    @test_throws Exception transcode(LZOPDecompressor(; uncompressed_checksum=:adler32, compressed_checksum=:adler32), compressed)
+
+    # bytes 12:15 are the uncompressed checksum 16:19 the compressed checksum
+    bad_uncompressed = copy(compressed)
+    bad_uncompressed[12] = bad_uncompressed[12]+1
+    @test_throws Exception transcode(LZOPDecompressor(; uncompressed_checksum=:adler32, compressed_checksum=:crc32), bad_uncompressed)
+
+    bad_compressed = copy(compressed)
+    bad_compressed[16] = bad_compressed[16]+1
+    @test_throws Exception transcode(LZOPDecompressor(; uncompressed_checksum=:adler32, compressed_checksum=:crc32), bad_compressed)
+    
+end
+
+@testitem "bad block sizes" begin
+    using TranscodingStreams
+
+    test_data = Vector{UInt8}("Hello, Julia!"^10)
+
+    compressed = transcode(LZOPCompressor, test_data)
+
+    # bytes 1:4 are the uncompressed size
+    bad_uncompressed = copy(compressed)
+    bad_uncompressed[4] = bad_uncompressed[4]-1
+    @test_throws Exception transcode(LZOPDecompressor, bad_uncompressed)
+
+    # bytes 5:8 are the compressed size
+    bad_compressed = copy(compressed)
+    bad_compressed[8] = bad_compressed[8]-1
+    @test_throws Exception transcode(LZOPDecompressor, bad_compressed)
 end
 
 @run_package_tests verbose=true
