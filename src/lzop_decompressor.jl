@@ -27,7 +27,7 @@ This codec implements the decompression of data in this format. Note that LZOP _
 - `filter::Function = identity`: a function applied to the decompressed data as it is streamed. The function must take a single `AbstractVector{UInt8}` argument and modify it in place without changing its size.
 - `on_checksum_fail::Symbol = :throw`: a flag to determine how checksum failures are handled. `:throw` will cause an `ErrorException` to be thrown, `:warn` will log a warning using the `@warn` macro, and `:ignore` will silently ignore the failure.
 """
-struct LZOPDecompressor{A <: AbstractLZOAlgorithm, F<:Function} <: TranscodingStreams.Codec
+struct LZOPDecompressor{A <: AbstractLZOAlgorithm, F<:Function} <: Codec
     algo::A
 
     uncompressed_checksum::Union{Symbol, Nothing}
@@ -48,7 +48,7 @@ struct LZOPDecompressor{A <: AbstractLZOAlgorithm, F<:Function} <: TranscodingSt
     LZOPDecompressor(::Type{A}; kwargs...) where {A <: AbstractLZOAlgorithm} = LZOPDecompressor(A(); kwargs...)
     
     function LZOPDecompressor(s::Symbol; kwargs...)
-        A = LibLZO._SYMBOL_LOOKUP[s]
+        A = _SYMBOL_LOOKUP[s]
         return LZOPDecompressor(A; kwargs...)
     end
     
@@ -58,12 +58,12 @@ end
 const LZOPDecompressorStream{A,S,F} = TranscodingStream{LZOPDecompressor{A,F}, S} where {A <: AbstractLZOAlgorithm, S <: IO, F<:Function}
 
 function LZOPDecompressorStream(io::IO, algo::A = LZO1X_1(); kwargs...) where {A <: AbstractLZOAlgorithm}
-    decompressor_kwargs, stream_kwargs = TranscodingStreams.splitkwargs(kwargs, (:uncompressed_checksum, :compressed_checksum, :filter, :on_checksum_fail))
+    decompressor_kwargs, stream_kwargs = splitkwargs(kwargs, (:uncompressed_checksum, :compressed_checksum, :filter, :on_checksum_fail))
     return TranscodingStream(LZOPDecompressor(algo; decompressor_kwargs...), io; stream_kwargs...)
 end
 
 function LZOPDecompressorStream(io::IO, ::Type{A}; kwargs...) where {A <: AbstractLZOAlgorithm}
-    lzo_kwargs, ts_kwargs = TranscodingStreams.splitkwargs(kwargs, (:compression_level,))
+    lzo_kwargs, ts_kwargs = splitkwargs(kwargs, (:compression_level,))
     algo = A(; lzo_kwargs...)
     return LZOPDecompressorStream(algo, io; ts_kwargs...)
 end
@@ -75,13 +75,13 @@ end
 
 LZOPDecompressorStream(io::IO, s::AbstractString; kwargs...) = LZOPDecompressorStream(io, Symbol(s); kwargs...)
 
-function TranscodingStreams.minoutsize(::LZOPDecompressor, input::TranscodingStreams.Memory)::Int
+function TranscodingStreams.minoutsize(::LZOPDecompressor, input::Memory)::Int
     # Because the codec decompresses by one block at a time, we can read off the size of the uncompressed data from the input directly (UInt32 in be order)
     length(input) < 4 && return 0
     return Int(input[1]) << 24 + Int(input[2]) << 16 + Int(input[3]) << 8 + Int(input[4])
 end
 
-function TranscodingStreams.process(codec::LZOPDecompressor, input::TranscodingStreams.Memory, output::TranscodingStreams.Memory, error::TranscodingStreams.Error)
+function TranscodingStreams.process(codec::LZOPDecompressor, input::Memory, output::Memory, error::Error)
     r = 0
     w = 0
 

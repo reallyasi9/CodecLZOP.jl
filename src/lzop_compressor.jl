@@ -28,7 +28,7 @@ This codec implements streaming compression of data using this algorithm. Note t
 - `filter::Function = identity`: a function applied to the compressed data as it is streamed. The function must take a single `AbstractVector{UInt8}` argument and modify it in place without changing its size.
 - `optimize::Bool = false`: whether to run the LZO optimization function on compressed data before writing it to the stream. Optimization doubles the compression time and rarely results in improved compression ratios, so it is disabled by default.
 """
-struct LZOPCompressor{A<:AbstractLZOAlgorithm,F<:Function} <: TranscodingStreams.Codec
+struct LZOPCompressor{A<:AbstractLZOAlgorithm,F<:Function} <: Codec
     algo::A
 
     block_size::Int
@@ -48,13 +48,13 @@ struct LZOPCompressor{A<:AbstractLZOAlgorithm,F<:Function} <: TranscodingStreams
     end
 
     function LZOPCompressor(::Type{A}; kwargs...) where {A<:AbstractLZOAlgorithm}
-        compressor_kwargs, lzo_kwargs = TranscodingStreams.splitkwargs(kwargs, (:block_size, :uncompressed_checksum, :compressed_checksum, :filter, :optimize))
+        compressor_kwargs, lzo_kwargs = splitkwargs(kwargs, (:block_size, :uncompressed_checksum, :compressed_checksum, :filter, :optimize))
         algo = A(; lzo_kwargs...)
         return LZOPCompressor(algo; compressor_kwargs...)
     end
 
     function LZOPCompressor(s::Symbol; kwargs...)
-        A = LibLZO._SYMBOL_LOOKUP[s]
+        A = _SYMBOL_LOOKUP[s]
         return LZOPCompressor(A; kwargs...)
     end
 
@@ -66,12 +66,12 @@ end
 const LZOPCompressorStream{A,S,F} = TranscodingStream{LZOPCompressor{A,F},S} where {A<:AbstractLZOAlgorithm,S<:IO,F<:Function}
 
 function LZOPCompressorStream(io::IO, algo::A = LZO1X_1(); kwargs...) where {A<:AbstractLZOAlgorithm}
-    compressor_kwargs, stream_kwargs = TranscodingStreams.splitkwargs(kwargs, (:block_size, :uncompressed_checksum, :compressed_checksum, :filter, :optimize))
+    compressor_kwargs, stream_kwargs = splitkwargs(kwargs, (:block_size, :uncompressed_checksum, :compressed_checksum, :filter, :optimize))
     return TranscodingStream(LZOPCompressor(algo; compressor_kwargs...), io; stream_kwargs...)
 end
 
 function LZOPCompressorStream(io::IO, ::Type{A}; kwargs...) where {A<:AbstractLZOAlgorithm}
-    lzo_kwargs, other_kwargs = TranscodingStreams.splitkwargs(kwargs, (:compression_level,))
+    lzo_kwargs, other_kwargs = splitkwargs(kwargs, (:compression_level,))
     algo = A(; lzo_kwargs...)
     return LZOPCompressorStream(io, algo; other_kwargs...)
 end
@@ -83,7 +83,7 @@ end
 
 LZOPCompressorStream(io::IO, s::AbstractString; kwargs...) = LZOPCompressorStream(io, Symbol(s); kwargs...)
 
-function TranscodingStreams.minoutsize(codec::LZOPCompressor, input::TranscodingStreams.Memory)::Int
+function TranscodingStreams.minoutsize(codec::LZOPCompressor, input::Memory)::Int
     # Empty data compresses to a single, uncompressed length of UInt32(0)
     length(input) == 0 && return 4
     # Uncompressed length, compressed length: each a UInt32.
@@ -95,7 +95,7 @@ function TranscodingStreams.minoutsize(codec::LZOPCompressor, input::Transcoding
     return length(input) + (d + 1) * extra
 end
 
-function TranscodingStreams.process(codec::LZOPCompressor, input::TranscodingStreams.Memory, output::TranscodingStreams.Memory, error::TranscodingStreams.Error)
+function TranscodingStreams.process(codec::LZOPCompressor, input::Memory, output::Memory, error::Error)
     r = zero(Int)
     w = zero(Int)
 
