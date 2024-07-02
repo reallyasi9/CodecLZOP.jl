@@ -185,7 +185,7 @@ function decompress_block(input::IO, output::IO, algo::AbstractLZOAlgorithm; unc
 
     if compressed_length < uncompressed_length
         uncompressed_data = Vector{UInt8}(undef, uncompressed_length)
-        decompressed_length = unsafe_decompress!(algo, uncompressed_data, raw_data)
+        decompressed_length = decompress!(algo, uncompressed_data, raw_data)
         decompressed_length != uncompressed_length && throw(ErrorException("invalid LZOP block: uncompressed length recorded in block does not equal length of decompressed data reported by LZO algorithm: ($uncompressed_length != $decompressed_length)"))
     else
         uncompressed_data = raw_data
