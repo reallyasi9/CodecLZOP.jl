@@ -1,19 +1,10 @@
-
 """
-    LZOPDecompressor(algo; [compressed_checksum=:adler32, uncompressed_checksum=nothing filter=identity, on_checksum_fail=:throw]) <: TranscodingStreams.Codec
+    LZOPDecompressor([algo=LZO1X_1]; <keyword arguments>) <: TranscodingStreams.Codec
 
-An implemention of the streaming decompression algorithm used by LZOP.
-
-LZO ([Lempel-Ziv-Oberhumer](https://www.oberhumer.com/opensource/lzo/)) is a variant of the [LZ77 compression algorithm](https://doi.org/10.1109/TIT.1977.1055714). The original implementation of LZO (as implemented in liblzo2) can only compress and decompress entire blocks of in-memory data at once.
-
-LZOP is a command-line utility that adds streaming compression and decompression capabilities to LZO by:
-1. Splitting input data into blocks of fixed size; and
-2. Adding header information to each block that contains compressed size, uncompressed size, and checksum information.
-
-This codec implements the decompression of data in this format. Note that LZOP _archives_ (the output of the LZOP command-line utility) are concatenated collections of files compressed using the LZOP algorithm and contain additional header information for each file and cannot be decompressed directly using this codec.
+Dexompress data using the LZOP method.
 
 # Arguments
-- `algo`: an `LibLZO.AbstractLZOAlgorithm`, `Symbol`, or `AbstractString` describing the LZO algorithm to use when decompressing the data. The decompression algorithm must match the algorithm used to compress the data.
+- `algo`: `LibLZO.AbstractLZOAlgorithm`, `Type{LibLZO.AbstractLZOAlgorithm}`, `Symbol`, or `AbstractString` describing the LZO algorithm to use when decompressing the data. The decompression algorithm must match the algorithm used to compress the data.
 
 # Keyword Arguments
 - `uncompressed_checksum::Union{Symbol, Nothing} = :adler32`: can be any of the following values:
@@ -26,6 +17,8 @@ This codec implements the decompression of data in this format. Note that LZOP _
     - `nothing`: expect no checksum of the compressed data (default).
 - `filter::Function = identity`: a function applied to the decompressed data as it is streamed. The function must take a single `AbstractVector{UInt8}` argument and modify it in place without changing its size.
 - `on_checksum_fail::Symbol = :throw`: a flag to determine how checksum failures are handled. `:throw` will cause an `ErrorException` to be thrown, `:warn` will log a warning using the `@warn` macro, and `:ignore` will silently ignore the failure.
+
+See also [`TranscodingStreams.Codec`](@ref), [`LibLZO.AbstractLZOAlgorithm`](@ref).
 """
 struct LZOPDecompressor{A <: AbstractLZOAlgorithm, F<:Function} <: Codec
     algo::A
@@ -55,6 +48,31 @@ struct LZOPDecompressor{A <: AbstractLZOAlgorithm, F<:Function} <: Codec
     LZOPDecompressor(s::String; kwargs...) = LZOPDecompressor(Symbol(s); kwargs...)
 end
 
+"""
+    LZOPDecompressorStream(io, [algo=LZO1X_1]; <keyword arguments>) <: TranscodingStreams.TranscodingStream
+
+Dexompress data using the LZOP method.
+
+# Arguments
+- `io::IO`: stream to decompress.
+- `algo`: `LibLZO.AbstractLZOAlgorithm`, `Type{LibLZO.AbstractLZOAlgorithm}`, `Symbol`, or `AbstractString` describing the LZO algorithm to use when decompressing the data. The decompression algorithm must match the algorithm used to compress the data.
+
+# Keyword Arguments
+- `uncompressed_checksum::Union{Symbol, Nothing} = :adler32`: can be any of the following values:
+    - `:adler32`: expect and decode an Adler32 checksum of the uncompressed data (default).
+    - `:crc32`: expect and decode a CRC32 checksum of the uncompressed data.
+    - `nothing`: expect no checksum of the uncompressed data.
+- `compressed_checksum::Union{Symbol, Nothing} = nothing`: can be any of the following values:
+    - `:adler32`: expect and decode an Adler32 checksum of the compressed data.
+    - `:crc32`: expect and decode a CRC32 checksum of the compressed data.
+    - `nothing`: expect no checksum of the compressed data (default).
+- `filter::Function = identity`: a function applied to the decompressed data as it is streamed. The function must take a single `AbstractVector{UInt8}` argument and modify it in place without changing its size.
+- `on_checksum_fail::Symbol = :throw`: a flag to determine how checksum failures are handled. `:throw` will cause an `ErrorException` to be thrown, `:warn` will log a warning using the `@warn` macro, and `:ignore` will silently ignore the failure.
+
+All other keyword arguments are passed unmodified to the `TranscodingStream` constructor.
+
+See also [`TranscodingStreams.TranscodingStream`](@ref), [`LibLZO.AbstractLZOAlgorithm`](@ref).
+"""
 const LZOPDecompressorStream{A,S,F} = TranscodingStream{LZOPDecompressor{A,F}, S} where {A <: AbstractLZOAlgorithm, S <: IO, F<:Function}
 
 function LZOPDecompressorStream(io::IO, algo::A = LZO1X_1(); kwargs...) where {A <: AbstractLZOAlgorithm}
