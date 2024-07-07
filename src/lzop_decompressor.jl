@@ -17,8 +17,6 @@ Dexompress data using the LZOP method.
     - `nothing`: expect no checksum of the compressed data (default).
 - `filter::Function = identity`: a function applied to the decompressed data as it is streamed. The function must take a single `AbstractVector{UInt8}` argument and modify it in place without changing its size.
 - `on_checksum_fail::Symbol = :throw`: a flag to determine how checksum failures are handled. `:throw` will cause an `ErrorException` to be thrown, `:warn` will log a warning using the `@warn` macro, and `:ignore` will silently ignore the failure.
-
-See also [`Codec`](@ref), [`AbstractLZOAlgorithm`](@ref).
 """
 struct LZOPDecompressor{A <: AbstractLZOAlgorithm, F<:Function} <: Codec
     algo::A
@@ -70,8 +68,6 @@ Dexompress data using the LZOP method.
 - `on_checksum_fail::Symbol = :throw`: a flag to determine how checksum failures are handled. `:throw` will cause an `ErrorException` to be thrown, `:warn` will log a warning using the `@warn` macro, and `:ignore` will silently ignore the failure.
 
 All other keyword arguments are passed unmodified to the `TranscodingStream` constructor.
-
-See also [`TranscodingStream`](@ref), [`AbstractLZOAlgorithm`](@ref).
 """
 const LZOPDecompressorStream{A,S,F} = TranscodingStream{LZOPDecompressor{A,F}, S} where {A <: AbstractLZOAlgorithm, S <: IO, F<:Function}
 
