@@ -19,8 +19,6 @@ Compress data using the LZOP method.
     - `nothing`: do not write a checksum of the compressed data (default).
 - `filter::Function = identity`: a function applied to the compressed data as it is streamed. The function must take a single `AbstractVector{UInt8}` argument and modify it in place without changing its size.
 - `optimize::Bool = false`: whether to run the LZO optimization function on compressed data before writing it to the stream. Optimization doubles the compression time and rarely results in improved compression ratios, so it is disabled by default.
-
-See also [`TranscodingStreams.Codec`](@ref), [`LibLZO.AbstractLZOAlgorithm`](@ref).
 """
 struct LZOPCompressor{A<:AbstractLZOAlgorithm,F<:Function} <: Codec
     algo::A
@@ -80,8 +78,6 @@ Compress stream using the LZOP method.
 - `optimize::Bool = false`: whether to run the LZO optimization function on compressed data before writing it to the stream. Optimization doubles the compression time and rarely results in improved compression ratios, so it is disabled by default.
 
 All other keyword arguments are passed unmodified to the `TranscodingStream` constructor.
-
-See also [`TranscodingStreams.TranscodingStream`](@ref), [`LibLZO.AbstractLZOAlgorithm`](@ref).
 """
 const LZOPCompressorStream{A,S,F} = TranscodingStream{LZOPCompressor{A,F},S} where {A<:AbstractLZOAlgorithm,S<:IO,F<:Function}
 
