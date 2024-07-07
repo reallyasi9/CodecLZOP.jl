@@ -1,6 +1,6 @@
 # CodecLZOP
 
-An implementation of the streaming [LZO compression and decompression](https://www.oberhumer.com/opensource/lzo/) format used in the [LZOP command line utility](https://www.lzop.org/) as a Codec for [TranscodingStreams.jl](https://github.com/JulioIO/TranscodingStreams.jl).
+An implementation of the streaming [LZO compression and decompression](https://github.com/reallyasi9/LibLZO.jl) format used in the [LZOP command line utility](https://www.lzop.org/) as a Codec for [TranscodingStreams.jl](https://github.com/JulioIO/TranscodingStreams.jl).
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://reallyasi9.github.io/CodecLZOP.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://reallyasi9.github.io/CodecLZOP.jl/dev/)
