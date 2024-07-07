@@ -1,12 +1,10 @@
 module CodecLZOP
 
-using CRC32
-using LibLZO
-using Printf
-using SimpleChecksums
-using TranscodingStreams
-
-const _crc32 = CRC32.crc32
+using CRC32: CRC32
+using LibLZO: AbstractLZOAlgorithm, LZO1X, LZO1X_1, LZO1X_1_11, LZO1X_999, compress, decompress!, unsafe_optimize!, _SYMBOL_LOOKUP
+using Printf: @sprintf
+using SimpleChecksums: SimpleChecksums
+using TranscodingStreams: TranscodingStreams, TranscodingStream, Codec, Memory, Error, splitkwargs
 
 export LZOPCompressor, LZOPCompressorStream
 export LZOPDecompressor, LZOPDecompressorStream

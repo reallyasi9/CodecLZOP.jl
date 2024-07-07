@@ -4,7 +4,7 @@ const LZOP_MAX_BLOCK_SIZE = 64 * 1024 * 1024
 """
     compress_block(input, output, algo; [kwargs...])::Tuple{Int,Int}
 
-    Compress a block of data from `input` to `output` using LZO algorithm `algo`, returning the number of bytes read from `input` and written to `output`.
+Compress a block of data from `input` to `output` using LZO algorithm `algo`, returning the number of bytes read from `input` and written to `output`.
 
 # Arguments
 - `input`: An `AbstractVector{UInt8}` or `IO` object containing the block of data to compress.
@@ -47,9 +47,9 @@ function compress_block(invec::AbstractVector{UInt8}, output::IO, algo::Abstract
     if isnothing(uncompressed_checksum)
         checksum = UInt32(0)
     elseif uncompressed_checksum == :crc32
-        checksum = _crc32(input)
+        checksum = CRC32.crc32(input)
     else
-        checksum = adler32(input)
+        checksum = SimpleChecksums.adler32(input)
     end
 
     # filter after checksum is calculated
@@ -77,9 +77,9 @@ function compress_block(invec::AbstractVector{UInt8}, output::IO, algo::Abstract
     if use_compressed
         if !isnothing(compressed_checksum)
             if compressed_checksum == :crc32
-                checksum = _crc32(input)
+                checksum = CRC32.crc32(input)
             else
-                checksum = adler32(input)
+                checksum = SimpleChecksums.adler32(input)
             end
             bytes_written += write(output, hton(checksum))
         end
@@ -111,7 +111,7 @@ compress_block(input::AbstractString, output::IO, algo::AbstractLZOAlgorithm; kw
 """
     decompress_block(input, output, algo; [kwargs...])::Tuple{Int,Int}
 
-    Decompress a block of data from `input` to `output` using LZO algorithm `algo`, returning the number of bytes read from `input` and written to `output`.
+Decompress a block of data from `input` to `output` using LZO algorithm `algo`, returning the number of bytes read from `input` and written to `output`.
 
 # Arguments
 - `input`: An `AbstractVector{UInt8}` or `IO` object containing the block of LZO-compressed data to decompress.
@@ -173,7 +173,7 @@ function decompress_block(input::IO, output::IO, algo::AbstractLZOAlgorithm; unc
     bytes_read += compressed_length
 
     if !isnothing(compressed_checksum) && on_checksum_fail != :ignore
-        computed_cc = (compressed_checksum == :crc32) ? _crc32(raw_data) : adler32(raw_data)
+        computed_cc = (compressed_checksum == :crc32) ? CRC32.crc32(raw_data) : SimpleChecksums.adler32(raw_data)
         if computed_cc != cchecksum
             if on_checksum_fail == :throw
                 throw(ErrorException("invalid LZOP block: compressed checksum recorded in block does not equal computed checksum of type $compressed_checksum ($(@sprintf("%08x", cchecksum)) != $(@sprintf("%08x", computed_cc)))"))
@@ -185,7 +185,7 @@ function decompress_block(input::IO, output::IO, algo::AbstractLZOAlgorithm; unc
 
     if compressed_length < uncompressed_length
         uncompressed_data = Vector{UInt8}(undef, uncompressed_length)
-        decompressed_length = unsafe_decompress!(algo, uncompressed_data, raw_data)
+        decompressed_length = decompress!(algo, uncompressed_data, raw_data)
         decompressed_length != uncompressed_length && throw(ErrorException("invalid LZOP block: uncompressed length recorded in block does not equal length of decompressed data reported by LZO algorithm: ($uncompressed_length != $decompressed_length)"))
     else
         uncompressed_data = raw_data
@@ -196,7 +196,7 @@ function decompress_block(input::IO, output::IO, algo::AbstractLZOAlgorithm; unc
 
     # only perform final checksum if flag not set to ignore and the data is compressed
     if !isnothing(uncompressed_checksum) && compressed_length < uncompressed_length && on_checksum_fail != :ignore
-        computed_uc = (uncompressed_checksum == :crc32) ? _crc32(uncompressed_data) : adler32(uncompressed_data)
+        computed_uc = (uncompressed_checksum == :crc32) ? CRC32.crc32(uncompressed_data) : SimpleChecksums.adler32(uncompressed_data)
         if computed_uc != uchecksum
             if on_checksum_fail == :throw
                 throw(ErrorException("invalid LZOP block: uncompressed checksum recorded in block does not equal computed checksum of type $uncompressed_checksum ($(@sprintf("%08x", uchecksum)) != $(@sprintf("%08x", computed_uc)))"))
